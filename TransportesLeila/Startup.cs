@@ -12,7 +12,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using TransportesLeila.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace TransportesLeila
 {
@@ -35,6 +36,9 @@ namespace TransportesLeila
             services.AddJsEngineSwitcher(options => options.DefaultEngineName = V8JsEngine.EngineName).AddV8();
             services.AddControllersWithViews();
 
+            services.AddDbContext<CommentContext>(
+                options => options.UseInMemoryDatabase(databaseName:"CommentsDb")
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

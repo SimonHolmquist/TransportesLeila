@@ -9,38 +9,17 @@ namespace TransportesLeila.Controllers
 {
     public class HomeController : Controller
     {
-        private static readonly IList<CommentModel> _comments;
+        private CommentContext _context;
 
-        static HomeController()
+        public HomeController(CommentContext context)
         {
-            _comments = new List<CommentModel>
-            {
-                new CommentModel
-                {
-                    Id = 1,
-                    Author = "Daniel Lo Nigro",
-                    Text = "Hello ReactJS.NET World!"
-                },
-                new CommentModel
-                {
-                    Id = 2,
-                    Author = "Pete Hunt",
-                    Text = "This is one comment"
-                },
-                new CommentModel
-                {
-                    Id = 3,
-                    Author = "Jordan Walke",
-                    Text = "This is *another* comment"
-                },
-            };
+            _context = context;
         }
 
         [Route("comments")]
-        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public ActionResult Comments()
         {
-            return Json(_comments);
+            return Json(_context.Comments.ToList());
         }
 
         [Route("comments/new")]
@@ -48,12 +27,13 @@ namespace TransportesLeila.Controllers
         public ActionResult AddComment(CommentModel comment)
         {
             // Create a fake ID for this comment
-            comment.Id = _comments.Count + 1;
-            _comments.Add(comment);
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
             return Content("Success :)");
         }
         public IActionResult Index()
         {
+            //var test_comment = _context.Comments.FirstOrDefault();
             return View();
         }
     }
