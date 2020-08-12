@@ -1,25 +1,9 @@
-﻿//import bootstrap from './bootstrap.css';
-
-const createRemarkable = () => {
-    var remarkable =
-        'undefined' != typeof global && global.Remarkable
-            ? global.Remarkable
-            : window.Remarkable;
-
-    return new remarkable();
-}
-
-class Comment extends React.Component {
-    rawMarkup() {
-        const md = new Remarkable();
-        const rawMarkup = md.render(this.props.children.toString());
-        return { __html: rawMarkup };
-    }
+﻿class Comment extends React.Component {
     render() {
         return (
             <div className="comment">
                 <h2 className="commentAuthor">{this.props.author}</h2>
-                <span dangerouslySetInnerHTML={this.rawMarkup()} />
+                {this.props.children}
             </div>
         );
     }
