@@ -1,4 +1,4 @@
-﻿const { useRef } = require("react");
+﻿//import bootstrap from './bootstrap.css';
 
 const createRemarkable = () => {
     var remarkable =
@@ -17,7 +17,7 @@ class Comment extends React.Component {
     }
     render() {
         return (
-            <div className="card comment">
+            <div className="comment">
                 <h2 className="commentAuthor">{this.props.author}</h2>
                 <span dangerouslySetInnerHTML={this.rawMarkup()} />
             </div>
@@ -37,12 +37,18 @@ class CommentList extends React.Component {
 }
 
 class CommentForm extends React.Component {
+
     constructor(props) {
+
         super(props);
+        this.inputNameRef = React.createRef();
         this.state = { author: '', text: '' };
         this.handleAuthorChange = this.handleAuthorChange.bind(this);
         this.handleTextChange = this.handleTextChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+    componentDidMount() {
+        this.inputNameRef.current.focus();
     }
     handleAuthorChange(e) {
         this.setState({ author: e.target.value });
@@ -51,6 +57,7 @@ class CommentForm extends React.Component {
         this.setState({ text: e.target.value });
     }
     handleSubmit(e) {
+        this.inputNameRef.current.focus();
         e.preventDefault();
         const author = this.state.author.trim();
         const text = this.state.text.trim();
@@ -59,12 +66,13 @@ class CommentForm extends React.Component {
         }
         this.props.onCommentSubmit({ author: author, text: text });
         this.setState({ author: '', text: '' });
-        
+
     }
     render() {
         return (
-            <form className="commentForm" onsubmit="handleSubmit(this);">
+            <form className="commentForm" onSubmit={this.handleSubmit}>
                 <input
+                    ref={this.inputNameRef}
                     type="text"
                     placeholder="Your name"
                     value={this.state.author}
@@ -76,7 +84,7 @@ class CommentForm extends React.Component {
                     value={this.state.text}
                     onChange={this.handleTextChange}
                 />
-                <input type="submit" value="Post"/>
+                <input type="submit" className="btn btn-primary" value="Post" />
             </form>
         );
     }

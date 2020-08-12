@@ -26,14 +26,12 @@ namespace TransportesLeila.Controllers
         [HttpPost]
         public ActionResult AddComment(CommentModel comment)
         {
-            // Create a fake ID for this comment
             _context.Comments.Add(comment);
             _context.SaveChanges();
             return Content("Success :)");
         }
         public IActionResult Index()
         {
-            //var test_comment = _context.Comments.FirstOrDefault();
             return View();
         }
     }
