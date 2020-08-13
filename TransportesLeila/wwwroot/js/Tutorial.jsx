@@ -1,10 +1,11 @@
 ﻿class Comment extends React.Component {
     render() {
         return (
-            <div className="comment">
-                <h2 className="commentAuthor">{this.props.author}</h2>
-                {this.props.children}
-            </div>
+            <tr>
+                <td>{this.props.id}</td>
+                <td>{this.props.author}</td>
+                <td>{this.props.children}</td>
+            </tr>
         );
     }
 }
@@ -12,11 +13,56 @@
 class CommentList extends React.Component {
     render() {
         const commentNodes = this.props.data.map(comment => (
-            <Comment author={comment.author} key={comment.id}>
+            <Comment author={comment.author} key={comment.id} id={comment.id}>
                 {comment.text}
             </Comment>
         ));
-        return <div className="commentList">{commentNodes}</div>;
+        return (
+            <table className="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {commentNodes}
+                </tbody>
+            </table>
+        );
+    }
+}
+
+class SearchComment extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { id: '' };
+        this.handleIdChange = this.handleIdChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+    handleIdChange(e) {
+        this.setState({ id: e.target.value });
+        this.props.onSearch({ id: e.target.value });
+    }
+    handleSubmit(e) {
+        e.preventDefault();
+        const id = this.state.id.trim();
+        this.props.onSearch({ id: id });
+        this.setState({ id: '' });
+    }
+    render() {
+        return (
+            <form onSubmit={this.handleSubmit}>
+                <input
+                    type="text"
+                    placeholder="Comment Id"
+                    value={this.state.id}
+                    onChange={this.handleIdChange}
+                />
+                <input type="submit" value="search" />
+            </form>
+        );
     }
 }
 
@@ -50,7 +96,6 @@ class CommentForm extends React.Component {
         }
         this.props.onCommentSubmit({ author: author, text: text });
         this.setState({ author: '', text: '' });
-
     }
     render() {
         return (
@@ -80,6 +125,7 @@ class CommentBox extends React.Component {
         this.state = { data: [] };
         this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     }
+
     loadCommentsFromServer() {
         const xhr = new XMLHttpRequest();
         xhr.open('get', this.props.url, true);
@@ -87,8 +133,10 @@ class CommentBox extends React.Component {
             const data = JSON.parse(xhr.responseText);
             this.setState({ data: data });
         };
+        //console.log(this.state.data.find(comment => comment.id === 3));
         xhr.send();
     }
+
     handleCommentSubmit(comment) {
         const comments = this.state.data;
         // Optimistically set an id on the new comment. It will be replaced by an
@@ -106,20 +154,38 @@ class CommentBox extends React.Component {
         xhr.onload = () => this.loadCommentsFromServer();
         xhr.send(data);
     }
+
+    loadSearchCommentFormServer(id) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('get', this.props.url, true);
+        xhr.onload = () => {
+            const data = JSON.parse(xhr.responseText);
+            this.setState({ data: data.filter(comment => comment.id.toString().substring(0, id.id.length) === id.id) });
+            //console.log(data.find(comment => comment.id == id.id));
+            //this.setState({data : buscado});
+        };
+        //console.log(this.state.data.find(comment => comment.id === 3));
+        xhr.send();
+    }
+
+    handleSearch = id => {
+        if (id.id === '') this.loadCommentsFromServer();
+        else this.loadSearchCommentFormServer(id)
+    }
     componentDidMount() {
         this.loadCommentsFromServer();
-        window.setInterval(
-            () => this.loadCommentsFromServer(),
-            this.props.pollInterval,
-        );
+        // window.setInterval(
+        //     () => this.loadCommentsFromServer(),
+        //     this.props.pollInterval,
+        // );
     }
     render() {
         return (
-            <div className="commentBox">
-                <h1>Comments</h1>
-                <CommentList data={this.state.data} />
+            <>
+                <SearchComment onSearch={this.handleSearch} />
                 <CommentForm onCommentSubmit={this.handleCommentSubmit} />
-            </div>
+                <CommentList data={this.state.data} />
+            </>
         );
     }
 }
@@ -128,7 +194,7 @@ ReactDOM.render(
     <CommentBox
         url="/comments"
         submitUrl="/comments/new"
-        pollInterval={2000}
+    //pollInterval={2000}
     />,
     document.getElementById('content'),
 );
