@@ -30,13 +30,15 @@ namespace TransportesLeila.Models
             //                select new CommentModel
             //                {
             //                    Author = n,
-            //                    Text = t
+            //                    Text = t,
+            //                    Verified = true
             //                };
             var comments = new List<CommentModel>(){
-                new CommentModel() { Id = 1, Author = "Simón", Text = "Lorem Ipsum 1"},
-                new CommentModel() { Id = 2, Author = "Santi", Text = "Lorem Ipsum 2"},
-                new CommentModel() { Id = 3, Author = "Berni", Text = "Lorem Ipsum 3"}
+                new CommentModel() {Id = 1, Author = "Simón", Text = "Lorem Ipsum 1", Verified = true},
+                new CommentModel() {Id = 2, Author = "Santi", Text = "Lorem Ipsum 2", Verified = false},
+                new CommentModel() {Id = 3, Author = "Berni", Text = "Lorem Ipsum 3", Verified = true}
             };
+
             modelBuilder.Entity<CommentModel>().HasData(comments.ToArray());
         }
     }

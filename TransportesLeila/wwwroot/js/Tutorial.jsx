@@ -1,7 +1,27 @@
-﻿class Comment extends React.Component {
+﻿//import { useState } from "react";
+
+class Comment extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {selected: false};
+        this.handleSelected = this.handleSelected.bind(this);
+    }
+    async handleSelected(e)
+    {
+        await this.setState({ selected: !(e.target.selected) });
+        if(this.state.selected) console.log(this);
+    }
     render() {
         return (
-            <tr>
+            <tr style={{ backgroundColor: this.props.verified ? 'yellow' : '' }}>
+                <td>
+                    <input
+                        type="checkbox"
+                        className="form-check-input"
+                        selected={this.state.selected}
+                        onClick={this.handleSelected}
+                    />
+                </td>
                 <td>{this.props.id}</td>
                 <td>{this.props.author}</td>
                 <td>{this.props.children}</td>
@@ -13,7 +33,12 @@
 class CommentList extends React.Component {
     render() {
         const commentNodes = this.props.data.map(comment => (
-            <Comment author={comment.author} key={comment.id} id={comment.id}>
+            <Comment
+                author={comment.author}
+                key={comment.id}
+                id={comment.id}
+                verified={comment.verified}
+            >
                 {comment.text}
             </Comment>
         ));
@@ -21,6 +46,7 @@ class CommentList extends React.Component {
             <table className="table">
                 <thead>
                     <tr>
+                        <th scope="col">Select</th>
                         <th scope="col">#</th>
                         <th scope="col">Author</th>
                         <th scope="col">Comment</th>
@@ -62,6 +88,24 @@ class SearchComment extends React.Component {
                 />
                 <input type="submit" value="search" />
             </form>
+        );
+    }
+}
+
+class Check extends React.Component {
+    constructor(props){
+        super(props);
+        //this.state = { toChek = [] };
+    }
+    render() {
+        return (
+            <button
+                className="btn btn-success"
+                value="Check"
+                onClick={this.props.onCheck}
+            >
+                Check
+            </button>
         );
     }
 }
@@ -122,7 +166,7 @@ class CommentForm extends React.Component {
 class CommentBox extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { data: [] };
+        this.state = { data: []};
         this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
     }
 
@@ -130,6 +174,7 @@ class CommentBox extends React.Component {
         const xhr = new XMLHttpRequest();
         xhr.open('get', this.props.url, true);
         xhr.onload = () => {
+            //console.log(xhr.response);
             const data = JSON.parse(xhr.responseText);
             this.setState({ data: data });
         };
@@ -148,6 +193,7 @@ class CommentBox extends React.Component {
         const data = new FormData();
         data.append('Author', comment.author);
         data.append('Text', comment.text);
+        data.append('Verified', false)
 
         const xhr = new XMLHttpRequest();
         xhr.open('post', this.props.submitUrl, true);
@@ -160,18 +206,18 @@ class CommentBox extends React.Component {
         xhr.open('get', this.props.url, true);
         xhr.onload = () => {
             const data = JSON.parse(xhr.responseText);
-            this.setState({ data: data.filter(comment => comment.id.toString().substring(0, id.id.length) === id.id) });
-            //console.log(data.find(comment => comment.id == id.id));
-            //this.setState({data : buscado});
+            this.setState({ data: data.filter(comment => comment.id.toString().substring(0, id.length) === id) });
         };
-        //console.log(this.state.data.find(comment => comment.id === 3));
         xhr.send();
     }
 
     handleSearch = id => {
         if (id.id === '') this.loadCommentsFromServer();
-        else this.loadSearchCommentFormServer(id)
+        else this.loadSearchCommentFormServer(id.id)
     }
+
+    handleCheck = () => console.log(this.state.data);
+
     componentDidMount() {
         this.loadCommentsFromServer();
         // window.setInterval(
@@ -183,6 +229,7 @@ class CommentBox extends React.Component {
         return (
             <>
                 <SearchComment onSearch={this.handleSearch} />
+                <Check onCheck={this.handleCheck}/>
                 <CommentForm onCommentSubmit={this.handleCommentSubmit} />
                 <CommentList data={this.state.data} />
             </>
@@ -194,7 +241,6 @@ ReactDOM.render(
     <CommentBox
         url="/comments"
         submitUrl="/comments/new"
-    //pollInterval={2000}
     />,
     document.getElementById('content'),
 );

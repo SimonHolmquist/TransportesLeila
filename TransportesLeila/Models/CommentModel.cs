@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TransportesLeila.Models
 {
@@ -13,6 +9,7 @@ namespace TransportesLeila.Models
         private int id;
         private string author;
         private string text;
+        private bool verified;
 
         public int Id { get => id; set => id = value; }
         [Display(Name = "Author")]  
@@ -21,5 +18,7 @@ namespace TransportesLeila.Models
         [Display(Name = "Text")]  
         [Required(ErrorMessage = "Text is required")]
         public string Text { get => text; set => text = value; }
+
+        public bool Verified { get => verified; set => verified = value; }
     }
 }
